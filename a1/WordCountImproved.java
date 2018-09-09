@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-public class WordCount extends Configured implements Tool {
+public class WordCountImproved extends Configured implements Tool {
 
 	public static class TokenizerMapper
 	extends Mapper<LongWritable, Text, Text, LongWritable>{
