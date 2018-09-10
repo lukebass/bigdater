@@ -17,10 +17,21 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class RedditAverage extends Configured implements Tool {
 
+    public LongPairWritable sumLongPairValues(Iterable<LongPairWritable> values) {
+        int firstValueSum = 0;
+        int secondValueSum = 0;
+		for (LongPairWritable val : values) {
+            firstValueSum += val.get_0();
+            secondValueSum += val.get_1();
+        }
+
+		return new LongPairWritable(firstValueSum, secondValueSum);
+    }
+
 	public static class ScoreMapper extends Mapper<LongWritable, Text, Text, LongPairWritable> {
 
+        private Text word = new Text();
 		private LongPairWritable valuePair = new LongPairWritable();
-		private Text word = new Text();
 
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -32,19 +43,10 @@ public class RedditAverage extends Configured implements Tool {
     }
 
     public static class ScoreCombiner extends Reducer<Text, LongPairWritable, Text, LongPairWritable> {
-		private LongPairWritable valuePair = new LongPairWritable();
 
 		@Override
 		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
-            int count = 0;
-            int score = 0;
-			for (LongPairWritable val : values) {
-                count += val.get_0();
-                score += val.get_1();
-            }
-
-			valuePair.set(count, score);
-			context.write(key, valuePair);
+			context.write(key, sumLongPairValues(values));
 		}
 	}
     
@@ -53,14 +55,8 @@ public class RedditAverage extends Configured implements Tool {
 
 		@Override
 		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
-            int count = 0;
-            int score = 0;
-			for (LongPairWritable val : values) {
-                count += val.get_0();
-                score += val.get_1();
-            }
-
-			result.set(score/count);
+            LongPairWritable valuePair = sumLongPairValues(values);
+			result.set(valuePair.get_1()/valuePair.get_0());
 			context.write(key, result);
 		}
 	}
@@ -83,7 +79,7 @@ public class RedditAverage extends Configured implements Tool {
 		job.setReducerClass(AverageReducer.class);
 
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(LongWritable.class);
+		job.setOutputValueClass(DoubleWritable.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 		TextInputFormat.addInputPath(job, new Path(args[0]));
 		TextOutputFormat.setOutputPath(job, new Path(args[1]));

@@ -17,8 +17,8 @@ public class WordCountImproved extends Configured implements Tool {
 
 	public static class TokenizerMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
 
-		private final static LongWritable one = new LongWritable(1);
 		private Text word = new Text();
+		private final static LongWritable one = new LongWritable(1);
 
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
