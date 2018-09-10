@@ -10,6 +10,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -17,7 +18,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class RedditAverage extends Configured implements Tool {
 
-    public LongPairWritable sumLongPairValues(Iterable<LongPairWritable> values) {
+    public static LongPairWritable sumLongPairValues(Iterable<LongPairWritable> values) {
         int firstValueSum = 0;
         int secondValueSum = 0;
 		for (LongPairWritable val : values) {
