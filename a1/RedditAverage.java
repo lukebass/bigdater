@@ -1,5 +1,7 @@
 import java.io.IOException;
 
+import org.json.JSONObject;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -15,23 +17,17 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class RedditAverage extends Configured implements Tool {
 
-	public static class TokenizerMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
+	public static class ScoreMapper extends Mapper<LongWritable, Text, Text, LongPairWritable> {
 
-		private final static LongWritable one = new LongWritable(1);
+		private LongPairWritable valuePair = new LongPairWritable();
 		private Text word = new Text();
 
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-			String[] words = value.toString().split("[\\p{Punct}\\s]+");
-
-			for (String str : words) {
-				if (str.length() == 0) {
-					continue;
-				}
-
-				word.set(str.toLowerCase());
-				context.write(word, one);
-			}
+            JSONObject record = new JSONObject(value.toString());
+            word.set((String) record.get("subreddit"));
+            valuePair.set(1, (Integer) record.get("score"));
+			context.write(word, valuePair);
 		}
 	}
 
@@ -48,7 +44,7 @@ public class RedditAverage extends Configured implements Tool {
 
 		job.setInputFormatClass(TextInputFormat.class);
 
-		job.setMapperClass(TokenizerMapper.class);
+		job.setMapperClass(ScoreMapper.class);
 		job.setCombinerClass(LongSumReducer.class);
 		job.setReducerClass(LongSumReducer.class);
 
