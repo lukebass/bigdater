@@ -23,9 +23,14 @@ public class WordCountImproved extends Configured implements Tool {
 
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-			StringTokenizer itr = new StringTokenizer(value.toString());
-			while (itr.hasMoreTokens()) {
-				word.set(itr.nextToken());
+			String[] words = value.toString().split("[\\p{Punct}\\s]+");
+
+			for (String str : words) {
+				if (str.length() == 0) {
+					continue;
+				}
+
+				word.set(str.toLowerCase());
 				context.write(word, one);
 			}
 		}
