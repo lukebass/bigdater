@@ -6,10 +6,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.reduce.LongSumReducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -29,6 +29,40 @@ public class RedditAverage extends Configured implements Tool {
             valuePair.set(1, (Integer) record.get("score"));
 			context.write(word, valuePair);
 		}
+    }
+
+    public static class ScoreCombiner extends Reducer<Text, LongPairWritable, Text, LongPairWritable> {
+		private LongPairWritable valuePair = new LongPairWritable();
+
+		@Override
+		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
+            int count = 0;
+            int score = 0;
+			for (LongPairWritable val : values) {
+                count += val.get_0();
+                score += val.get_1();
+            }
+
+			valuePair.set(count, score);
+			context.write(key, valuePair);
+		}
+	}
+    
+    public static class AverageReducer extends Reducer<Text, LongPairWritable, Text, DoubleWritable> {
+		private DoubleWritable result = new DoubleWritable();
+
+		@Override
+		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
+            int count = 0;
+            int score = 0;
+			for (LongPairWritable val : values) {
+                count += val.get_0();
+                score += val.get_1();
+            }
+
+			result.set(score/count);
+			context.write(key, result);
+		}
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -45,8 +79,8 @@ public class RedditAverage extends Configured implements Tool {
 		job.setInputFormatClass(TextInputFormat.class);
 
 		job.setMapperClass(ScoreMapper.class);
-		job.setCombinerClass(LongSumReducer.class);
-		job.setReducerClass(LongSumReducer.class);
+		job.setCombinerClass(ScoreCombiner.class);
+		job.setReducerClass(AverageReducer.class);
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(LongWritable.class);
