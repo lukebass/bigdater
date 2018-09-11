@@ -80,7 +80,7 @@ public class RedditAverage extends Configured implements Tool {
 		job.setReducerClass(AverageReducer.class);
 
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(DoubleWritable.class);
+		job.setOutputValueClass(LongPairWritable.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 		TextInputFormat.addInputPath(job, new Path(args[0]));
 		TextOutputFormat.setOutputPath(job, new Path(args[1]));
