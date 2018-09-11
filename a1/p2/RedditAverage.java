@@ -38,7 +38,7 @@ public class RedditAverage extends Configured implements Tool {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             JSONObject record = new JSONObject(value.toString());
             word.set((String) record.get("subreddit"));
-            valuePair.set(1, (Integer) record.get("score"));
+            valuePair.set(1, (int) record.get("score"));
 			context.write(word, valuePair);
 		}
     }
@@ -56,8 +56,8 @@ public class RedditAverage extends Configured implements Tool {
 
 		@Override
 		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
-            LongPairWritable valuePair = sumLongPairValues(values);
-			result.set(valuePair.get_1()/valuePair.get_0());
+			LongPairWritable valuePair = sumLongPairValues(values);
+			result.set((double) valuePair.get_1()/valuePair.get_0());
 			context.write(key, result);
 		}
 	}
@@ -70,7 +70,7 @@ public class RedditAverage extends Configured implements Tool {
 	@Override
 	public int run(String[] args) throws Exception {
 		Configuration conf = this.getConf();
-		Job job = Job.getInstance(conf, "word count");
+		Job job = Job.getInstance(conf, "reddit average");
 		job.setJarByClass(RedditAverage.class);
 
 		job.setInputFormatClass(TextInputFormat.class);
