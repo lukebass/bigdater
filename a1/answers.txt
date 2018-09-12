@@ -1,0 +1,14 @@
+1) Aside from Java-specific things, such as syntax and inheritance, there is nothing from the original WordCount that is still confusing.
+
+2) When I used three reducers, the job produced three output files. If our job produced large output sets it would be beneficial to break the 
+output into smaller chunks, so that it could be consumed more efficiently down the line. For example, with a large dataset, we might find that 
+using three reducers decreases the runtime, as these reducers could be run in parellel. Furthermore, we can assume that, once we have our 
+output, the output will need to be digested and analyzed by another program. Again, if we have multiple output files, we could write code that 
+digests and analyzes the output in parallel, decreasing the runtime.
+
+3) When I used zero reducers, the job produced output files that contained the output from the mappers. When I did this for wordcount-1, the 
+job produced three output files, one for each of the input files.
+
+4) There was not a noticable difference in the runtime of RedditAverage with and without the combiner optimization. I assume though that this 
+was simply because there was not enough input data to notice any difference. What I did notice, however, was that the "Reduce input records" 
+decreased from 9146 to 44, indicating that the combiner drastically simplified the task of the reducer.
