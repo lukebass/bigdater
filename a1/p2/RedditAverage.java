@@ -57,7 +57,7 @@ public class RedditAverage extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
 			LongPairWritable valuePair = sumLongPairValues(values);
-			result.set((double) valuePair.get_1()/valuePair.get_0());
+			result.set(Math.round(((double) valuePair.get_1() / valuePair.get_0()) * 1000.0) / 1000.0);
 			context.write(key, result);
 		}
 	}
@@ -79,8 +79,10 @@ public class RedditAverage extends Configured implements Tool {
 		job.setCombinerClass(ScoreCombiner.class);
 		job.setReducerClass(AverageReducer.class);
 
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(LongPairWritable.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(LongPairWritable.class);
+		job.setOutputValueClass(DoubleWritable.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 		TextInputFormat.addInputPath(job, new Path(args[0]));
 		TextOutputFormat.setOutputPath(job, new Path(args[1]));
