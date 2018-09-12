@@ -1,5 +1,7 @@
 import java.io.IOException;
 
+import java.util.regex.Pattern;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -19,12 +21,11 @@ public class WordCountImproved extends Configured implements Tool {
 
 		private Text word = new Text();
 		private final static LongWritable one = new LongWritable(1);
+		private Pattern wordSep = Pattern.compile("[\\p{Punct}\\s]+");
 
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-			String[] words = value.toString().split("[\\p{Punct}\\s]+");
-
-			for (String str : words) {
+			for (String str : wordSep.split(value.toString())) {
 				if (str.length() == 0) {
 					continue;
 				}
