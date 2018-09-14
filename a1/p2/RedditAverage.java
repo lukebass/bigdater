@@ -18,33 +18,33 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class RedditAverage extends Configured implements Tool {
 
-    public static void sumLongPairValues(Iterable<LongPairWritable> values, LongPairWritable sums) {
+	public static void sumLongPairValues(Iterable<LongPairWritable> values, LongPairWritable sums) {
 
-        int firstValueSum = 0;
-        int secondValueSum = 0;
+		int firstValueSum = 0;
+		int secondValueSum = 0;
 		for (LongPairWritable val : values) {
-            firstValueSum += val.get_0();
-            secondValueSum += val.get_1();
-        }
+			firstValueSum += val.get_0();
+			secondValueSum += val.get_1();
+		}
 
 		sums.set(firstValueSum, secondValueSum);
-    }
+	}
 
 	public static class ScoreMapper extends Mapper<LongWritable, Text, Text, LongPairWritable> {
 
-        private Text word = new Text();
+		private Text word = new Text();
 		private LongPairWritable valuePair = new LongPairWritable();
 
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-            JSONObject record = new JSONObject(value.toString());
-            word.set((String) record.get("subreddit"));
-            valuePair.set(1, (int) record.get("score"));
+			JSONObject record = new JSONObject(value.toString());
+			word.set((String) record.get("subreddit"));
+			valuePair.set(1, (int) record.get("score"));
 			context.write(word, valuePair);
 		}
-    }
+	}
 
-    public static class ScoreCombiner extends Reducer<Text, LongPairWritable, Text, LongPairWritable> {
+	public static class ScoreCombiner extends Reducer<Text, LongPairWritable, Text, LongPairWritable> {
 
 		private LongPairWritable valuePair = new LongPairWritable();
 
@@ -54,8 +54,8 @@ public class RedditAverage extends Configured implements Tool {
 			context.write(key, valuePair);
 		}
 	}
-    
-    public static class AverageReducer extends Reducer<Text, LongPairWritable, Text, DoubleWritable> {
+
+	public static class AverageReducer extends Reducer<Text, LongPairWritable, Text, DoubleWritable> {
 
 		private LongPairWritable valuePair = new LongPairWritable();
 		private DoubleWritable result = new DoubleWritable();
