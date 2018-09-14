@@ -40,7 +40,7 @@ public class WikipediaPopular extends Configured implements Tool {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String[] values = wordSep.split(value.toString());
 
-			if (values[1] != "en" || values[2] == "Main_Page" || values[2].startsWith("Special:")) {
+			if (!values[1].equals("en") || values[2] == "Main_Page" || values[2].startsWith("Special:")) {
 				return;
 			}
 
