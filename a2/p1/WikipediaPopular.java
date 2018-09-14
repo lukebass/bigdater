@@ -20,10 +20,10 @@ public class WikipediaPopular extends Configured implements Tool {
 
 	public static void getMaxViews(Iterable<LongWritable> values, LongWritable maxViews) {
 
-		int currMax = 0;
+		long currMax = 0;
 		for (LongWritable val : values) {
-			if (val > currMax) {
-				currMax = val;
+			if (val.get() > currMax) {
+				currMax = val.get();
 			}
 		}
 
@@ -45,24 +45,24 @@ public class WikipediaPopular extends Configured implements Tool {
 			}
 
 			time.set(values[0]);
-			views.set(values[3]);
+			views.set(Integer.parseInt(values[3]));
 			context.write(time, views);
 		}
 	}
 
 	public static class MaxReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
 
-		private LongWritable maxViews = new LongPairWritable();
+		private LongWritable maxViews = new LongWritable();
 
 		@Override
-		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
 			getMaxViews(values, maxViews);
 			context.write(key, maxViews);
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new RedditAverage(), args);
+		int res = ToolRunner.run(new Configuration(), new WikipediaPopular(), args);
 		System.exit(res);
 	}
 
