@@ -18,7 +18,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class RedditAverage extends Configured implements Tool {
 
-    public static LongPairWritable sumLongPairValues(Iterable<LongPairWritable> values) {
+    public static void sumLongPairValues(Iterable<LongPairWritable> values, LongPairWritable sums) {
+
         int firstValueSum = 0;
         int secondValueSum = 0;
 		for (LongPairWritable val : values) {
@@ -26,7 +27,7 @@ public class RedditAverage extends Configured implements Tool {
             secondValueSum += val.get_1();
         }
 
-		return new LongPairWritable(firstValueSum, secondValueSum);
+		sums.set(firstValueSum, secondValueSum);
     }
 
 	public static class ScoreMapper extends Mapper<LongWritable, Text, Text, LongPairWritable> {
@@ -45,18 +46,23 @@ public class RedditAverage extends Configured implements Tool {
 
     public static class ScoreCombiner extends Reducer<Text, LongPairWritable, Text, LongPairWritable> {
 
+		private LongPairWritable valuePair = new LongPairWritable();
+
 		@Override
 		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
-			context.write(key, sumLongPairValues(values));
+			sumLongPairValues(values, valuePair);
+			context.write(key, valuePair);
 		}
 	}
     
     public static class AverageReducer extends Reducer<Text, LongPairWritable, Text, DoubleWritable> {
+
+		private LongPairWritable valuePair = new LongPairWritable();
 		private DoubleWritable result = new DoubleWritable();
 
 		@Override
 		public void reduce(Text key, Iterable<LongPairWritable> values, Context context) throws IOException, InterruptedException {
-			LongPairWritable valuePair = sumLongPairValues(values);
+			sumLongPairValues(values, valuePair);
 			result.set(Math.round(((double) valuePair.get_1() / valuePair.get_0()) * 1000.0) / 1000.0);
 			context.write(key, result);
 		}
