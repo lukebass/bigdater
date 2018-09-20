@@ -1,0 +1,15 @@
+1) If we wanted the WikipediaPopular class to return the most popular page, as well as the view count, we would have to modify both our mapper 
+and reducer classes. First, the mapper would need to return Text-LongTextPairWritable pairs. This would, therefore, require us to implement a 
+LongTextPairWritable class, which implements Writable. This class would allow us to store the view count (Long) and page (Text) pairs, which
+we would return, along with the key (Text time field), from the mapper. Next, the reducer would need to accept Text-LongTextPairWritable pairs. 
+However we are currently calculating the max view count would also slightly change. We would no longer iterate over a list of LongWritables, to 
+determine the max view count, but rather our LongTextWritable pairs. Lastly, the reducer would need to return Text-LongTextPairWritable pairs.
+
+2) The difference between map and flatMap is that the map operation will apply itself to the n elements passed in and will return n elements as 
+a result. The flatMap operation will apply itself to the n elements passed in, however, for each element, it may return 0, 1, or more elements
+as a result. Take, for example, wordcount-improved. For each line flatMap processes, it may return 0, 1, or more words, depending on how many 
+words were on a line. Map is more like the MapReduce concept of mapping: each element is processed and mapped, one by one.
+
+3) The difference between reduce and reduceByKey is that the reduce operation will apply itself to the n elements passed in and will return one 
+value as a result. The reduceByKey operation will apply itself to the n key-value pairs passed in and will return one value for each key as a 
+result. ReduceByKey is more like the MapReduce conecpt of reducing: only unique keys and their values remain after they are reduced.
