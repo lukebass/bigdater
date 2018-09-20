@@ -1,5 +1,5 @@
 from pyspark import SparkConf, SparkContext
-import sys, operator
+import sys, re
 
 inputs = sys.argv[1]
 output = sys.argv[2]
@@ -9,20 +9,29 @@ sc = SparkContext(conf=conf)
 assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
 assert sc.version >= '2.3'  # make sure we have Spark 2.3+
 
-def words_once(line):
-    for w in line.split():
-        yield (w.lower(), 1)
+wordsep = re.compile(r'[\s]+')
 
-def get_key(kv):
+def getPageValues(line):
+    values = wordsep.split(line)
+    return [values[0], values[1], values[2], int(values[3]), values[4]]
+
+def filterPages(page):
+    if page[1] != "en" and page[2] != "Main Page" and not page[2].startswith("Special:"):
+        return True
+
+def getDateViewsPairs(page):
+    return [page[0], page[3]]
+
+def getKey(kv):
     return kv[0]
 
-def output_format(kv):
+def outputFormat(kv):
     k, v = kv
     return '%s %i' % (k, v)
 
 text = sc.textFile(inputs)
-words = text.flatMap(words_once)
-wordcount = words.reduceByKey(operator.add)
+pages = text.map(getPageValues).filter(filterPages).map(getDateViewsPairs)
+maxViews = pages.reduceByKey(max)
 
-outdata = wordcount.sortBy(get_key).map(output_format)
+outdata = maxViews.sortBy(getKey).map(outputFormat)
 outdata.saveAsTextFile(output)
