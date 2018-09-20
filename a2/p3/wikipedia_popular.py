@@ -13,21 +13,21 @@ wordsep = re.compile(r'[\s]+')
 
 def getPageValues(line):
     values = wordsep.split(line)
-    return [values[0], values[1], values[2], int(values[3]), values[4]]
+    return (values[0], values[1], values[2], int(values[3]), values[4])
 
 def filterPages(page):
-    if page[1] != "en" and page[2] != "Main Page" and not page[2].startswith("Special:"):
+    if page[1] == "en" and page[2] != "Main Page" and not page[2].startswith("Special:"):
         return True
 
 def getDateViewsPairs(page):
-    return [page[0], page[3]]
+    return (page[0], (page[3], page[2]))
 
 def getKey(kv):
     return kv[0]
 
 def outputFormat(kv):
     k, v = kv
-    return '%s %i' % (k, v)
+    return '%s (%i, %s)' % (k, v[0], v[1])
 
 text = sc.textFile(inputs)
 pages = text.map(getPageValues).filter(filterPages).map(getDateViewsPairs)
