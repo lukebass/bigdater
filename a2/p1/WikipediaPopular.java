@@ -69,7 +69,7 @@ public class WikipediaPopular extends Configured implements Tool {
 	@Override
 	public int run(String[] args) throws Exception {
 		Configuration conf = this.getConf();
-		Job job = Job.getInstance(conf, "wikipedia views");
+		Job job = Job.getInstance(conf, "wikipedia popular");
 		job.setJarByClass(WikipediaPopular.class);
 
 		job.setInputFormatClass(TextInputFormat.class);
