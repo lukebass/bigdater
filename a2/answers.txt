@@ -13,3 +13,10 @@ words were on a line. Map is more like the MapReduce concept of mapping: each el
 3) The difference between reduce and reduceByKey is that the reduce operation will apply itself to the n elements passed in and will return one 
 value as a result. The reduceByKey operation will apply itself to the n key-value pairs passed in and will return one value for each key as a 
 result. ReduceByKey is more like the MapReduce conecpt of reducing: only unique keys and their values remain after they are reduced.
+
+4) If we wanted wikipedia_popular.py to return all pages viewed the highest number of times, we would, first, have to implement a function used 
+by the reduceByKey call. Instead of returning a views-name tuple, it would instead return a list of tuples for the provided time key, where the 
+list contained the highest viewed pages. For each key, we would iterate over the pages and if the current page had views greater than our 
+current max, we would empty the list and add this page to our list. However, if the current page had views equal to our current max, we would 
+instead add it to our list. Furthermore, we would have to update the outputFormat function to return the time, followed by the list of tuples, 
+instead of the time-tuple format it currently outputs. 

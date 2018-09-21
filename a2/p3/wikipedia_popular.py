@@ -19,7 +19,7 @@ def filterPages(page):
     if page[1] == "en" and page[2] != "Main Page" and not page[2].startswith("Special:"):
         return True
 
-def getDateViewsPairs(page):
+def getDateViewNameTuples(page):
     return (page[0], (page[3], page[2]))
 
 def getKey(kv):
@@ -30,7 +30,7 @@ def outputFormat(kv):
     return '%s (%i, %s)' % (k, v[0], v[1])
 
 text = sc.textFile(inputs)
-pages = text.map(getPageValues).filter(filterPages).map(getDateViewsPairs)
+pages = text.map(getPageValues).filter(filterPages).map(getDateViewNameTuples)
 maxViews = pages.reduceByKey(max)
 
 outdata = maxViews.sortBy(getKey).map(outputFormat)
