@@ -5,7 +5,7 @@ assert sys.version_info >= (3, 5) # make sure we have Python 3.5+
 wordsep = re.compile(r'[%s\s]+' % re.escape(string.punctuation))
 
 def main(inputs, output):
-    text = sc.textFile(inputs)
+    text = sc.textFile(inputs).repartition(8)
     words = text.flatMap(words_once).filter(lambda x: len(x[0]) > 0)
     wordcount = words.reduceByKey(operator.add)
 
