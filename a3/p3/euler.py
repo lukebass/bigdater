@@ -23,7 +23,5 @@ if __name__ == '__main__':
     sc = SparkContext(conf=conf)
     assert sc.version >= '2.3'  # make sure we have Spark 2.3+
 
-    numSlices = 4
-    if (sys.argv[2]):
-        numSlices = int(sys.argv[2])
+    numSlices = sys.argv[2] if len(sys.argv) > 2 else 4
     main(int(sys.argv[1]), numSlices)
