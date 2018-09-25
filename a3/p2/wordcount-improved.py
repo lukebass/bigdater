@@ -24,7 +24,7 @@ def output_format(kv):
     return '%s %i' % (k, v)
 
 if __name__ == '__main__':
-    conf = SparkConf().setAppName('example code')
+    conf = SparkConf().setAppName('word count')
     sc = SparkContext(conf=conf)
     assert sc.version >= '2.3'  # make sure we have Spark 2.3+
     inputs = sys.argv[1]
