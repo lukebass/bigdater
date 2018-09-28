@@ -1,12 +1,12 @@
 1) The wordcount-5 data set was worth repartitioning because the 8 input files were of significantly different sizes. This means that the work 
-each executor has to do varies based on the size of the file. By repartitioning, we ensure that the original input files are all the same size 
-(or close to it). Therefore, the workload is balanced across executors, which significantly decreases the runtime.
+each executor has to do varies based on the size of the partition. By repartitioning, we ensure that each partition, of our RDD of strings, are 
+all the same size. Therefore, the workload is balanced across executors, which significantly decreases the runtime.
 
 2) The same fix does not work for the wordcount-3 data set because there is a cost associated with repartitioning data. First, if we examine 
-the input files, we note that they don't vary too drastically in size. Second, there are quite a few files and repartitioning from N to M files 
-could be quite expensive. Therefore, since the executor workload seems balanced, repartitioning won't decrease runtime.
+the input files, we note that they don't vary too drastically in size. Second, there are quite a few files and repartitioning from N to M 
+partitions could be quite expensive. Therefore, since the executor workload seems balanced, repartitioning won't decrease runtime.
 
-3) We could modify the wordcount-5 input by repartitioning the data before running our program. Again, there is a cost associated with 
+3) We could modify the wordcount-5 input by balancing the file sizes before running our program. Again, there is a cost associated with 
 repartitioning data. If we were preparing a data set to be used in a project, for example, we would, ideally, like to optimize the initial data 
 set, so that our program can focus on the task at hand. Obviously in practice, we won't always have this opportunity.
 
