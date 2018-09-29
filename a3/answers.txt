@@ -4,11 +4,11 @@ all the same size. Therefore, the workload is balanced across executors, which s
 
 2) The same fix does not work for the wordcount-3 data set because there is a cost associated with repartitioning data. First, if we examine 
 the input files, we note that they don't vary too drastically in size. Second, there are quite a few files and repartitioning from N to M 
-partitions could be quite expensive. Therefore, since the executor workload seems balanced, repartitioning won't decrease runtime.
+partitions could be quite expensive. Therefore, since the size of each partition will be similar, repartitioning won't benefit us.
 
 3) We could modify the wordcount-5 input by balancing the file sizes before running our program. Again, there is a cost associated with 
 repartitioning data. If we were preparing a data set to be used in a project, for example, we would, ideally, like to optimize the initial data 
-set, so that our program can focus on the task at hand. Obviously in practice, we won't always have this opportunity.
+set, so that our program can focus on the task at hand. Equally sized files set us up for equal executor workloads.
 
 4) When experimenting with the number of partitions, on my laptop, I found that anywhere between 2 to 40 partitions gave similar runtimes.
 
@@ -21,4 +21,4 @@ PyPy and euler_single.py: 5.534s
 C and euler.c: 2.982s
 
 It seems as though Spark adds ~10s of overhead to a job. Running euler.py with Python3 took ~47s, while running euler.py with PyPy took ~11s. 
-PyPy speed up the program execution by a factor of 4!
+PyPy sped up the program execution by a factor of 4!
