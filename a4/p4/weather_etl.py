@@ -17,6 +17,9 @@ def main(inputs, output):
     ])
 
     weather = spark.read.csv(inputs, schema=observation_schema)
+    weather.filter(weather.qflag.isNull()).filter(weather.station.startsWith('CA')).filter(weather.observation == 'TMAX')
+    weather.withColumn('tmax', weather.value / 10)
+    weather[['station', 'date', 'tmax']].write.json(output, compression='gzip', mode='overwrite')
 
 if __name__ == '__main__':
     inputs = sys.argv[1]
