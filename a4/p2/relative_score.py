@@ -16,7 +16,7 @@ def getAverage(kv):
     return (k, v[1]/v[0])
 
 def getRelativeScore(kv):
-    k, v = kv
+    v = kv[1]
     return (v[0]['score']/v[1], v[0]['author'])
 
 if __name__ == '__main__':

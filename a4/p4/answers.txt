@@ -1,0 +1,13 @@
+1) For each of the following tests I used the reddit-2 dataset:
+
+Without cache: 25.927s 
+With cache: 19.835
+
+2) Caching is useful when our code references an RDD multiple times. With all operations, there is a cost associated with performing them. 
+Therefore, caching an RDD that is only referenced once might actually increase the runtime of our program.
+
+3) The broadcast join will be faster than an actual join when the data we are broadcasting is relatively small in size, as it must be stored in 
+each executor's memory, and the RDD we are joining it to is large in size. Otherwise a regular join will do.
+
+4) The broadcast join will be slower than an actual join when the data we are broadcasting is relatively large in size, as it must be copied to 
+each executor, and the RDD we are joining it to is too small in size to make broadcasting worth it.
