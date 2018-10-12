@@ -24,7 +24,7 @@ def main(inputs, output):
     tmax = spark.sql("SELECT * FROM weather WHERE qflag IS NULL AND observation == 'TMAX'")
     tmax.createOrReplaceTempView("tmax")
 
-    range = spark.sql("SELECT tmin.station, tmin.date, ((tmax.value - tmin.value) / 10) AS range FROM tmin INNER JOIN tmax ON tmin.station = tmax.station AND tmin.date = tmax.date")
+    range = spark.sql("SELECT tmin.station, tmin.date, ((tmax.value - tmin.value) / 10) AS range FROM tmin INNER JOIN tmax ON tmin.station = tmax.station AND tmin.date = tmax.date").cache()
     range.createOrReplaceTempView("range")
 
     maxRange = spark.sql("SELECT date, MAX(range) AS max FROM range GROUP BY date")
