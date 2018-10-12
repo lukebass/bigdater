@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession, functions, types
 import sys, os
 assert sys.version_info >= (3, 5) # make sure we have Python 3.5+
-spark = SparkSession.builder.appName('reddit average').getOrCreate()
+spark = SparkSession.builder.appName('wikipedia popular').getOrCreate()
 assert spark.version >= '2.3' # make sure we have Spark 2.3+
 
 @functions.udf(returnType=types.StringType())
@@ -17,7 +17,7 @@ def main(inputs, output):
     ])
 
     views = spark.read.csv(inputs, schema=wiki_schema, sep=' ').withColumn('hour', pathToHour(functions.input_file_name()))
-    views = views.filter(views.language == 'en').filter(views.title != 'Main Page').filter(~views.title.startswith("Special:"))
+    views = views.filter(views.language == 'en').filter(views.title != 'Main Page').filter(~views.title.startswith("Special:")).cache()
     
     maxViews = views.groupBy('hour').max('views')
     maxPages = views.join(maxViews, [views.hour == maxViews.hour, views.views == maxViews['max(views)']]).drop(maxViews.hour).orderBy('hour', 'title')
