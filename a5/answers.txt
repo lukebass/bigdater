@@ -1,0 +1,8 @@
+1) *(2) HashAggregate(keys=[subreddit#18], functions=[avg(score#16L)])
++- Exchange hashpartitioning(subreddit#18, 200)
+   +- *(1) HashAggregate(keys=[subreddit#18], functions=[partial_avg(score#16L)])
+      +- *(1) FileScan json [score#16L,subreddit#18] Batched: false, Format: JSON, Location: InMemoryFileIndex[file:/Users/luke/Desktop/cmpt732/a5/p1/reddit-1], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<score:bigint,subreddit:string>
+
+2) Do tomorrow
+
+3) 
