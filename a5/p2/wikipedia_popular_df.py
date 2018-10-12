@@ -20,6 +20,7 @@ def main(inputs, output):
     views = views.filter(views.language == 'en').filter(views.title != 'Main Page').filter(~views.title.startswith("Special:")).cache()
     
     maxViews = views.groupBy('hour').max('views')
+    functions.broadcast(maxViews)
     maxPages = views.join(maxViews, [views.hour == maxViews.hour, views.views == maxViews['max(views)']]).drop(maxViews.hour).orderBy('hour', 'title')
     maxPages[['hour', 'title', 'views']].write.json(output, compression='gzip', mode='overwrite')
 

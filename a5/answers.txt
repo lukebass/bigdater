@@ -1,10 +1,80 @@
-1) *(2) HashAggregate(keys=[subreddit#18], functions=[avg(score#16L)])
-+- Exchange hashpartitioning(subreddit#18, 200)
-   +- *(1) HashAggregate(keys=[subreddit#18], functions=[partial_avg(score#16L)])
-      +- *(1) FileScan json [score#16L,subreddit#18] Batched: false, Format: JSON, Location: InMemoryFileIndex[file:/Users/luke/Desktop/cmpt732/a5/p1/reddit-1], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<score:bigint,subreddit:string>
+1) The only fields loaded were the ones the program used: score and subreddit. It appears as though the average was computed in two steps: first 
+it performed a "partial_avg" and then the complete "avg". There is an intermediary step between the two, which states that it is exchanging the 
+hashpartitioning. This seems similar to a combiner-like step: taking the partial averages and combining them to find the complete average.
 
-2) Do tomorrow
+2) 
 
-3) Do tomorrow
+MapReduce: 2m6.604s
+RDDs and Python3: 3m19.393s
+DataFrames and Python3: 1m39.970s
+RDDs and PyPy: 2m0.070s
+DataFrames and PyPy: 0m55.417s
 
-4) Do tomorrow
+3)
+
+Without broadcast on pagecounts-3: 1m46.676s
+With broadcast on pagecounts-3: 1m35.989s
+
+4)
+
+EXECUTION SUMMARY
+== Physical Plan ==
+*(7) Sort [hour#56 ASC NULLS FIRST, title#1 ASC NULLS FIRST], true, 0
++- Exchange rangepartitioning(hour#56 ASC NULLS FIRST, title#1 ASC NULLS FIRST, 200)
+   +- *(6) Project [language#0, title#1, views#2L, size#3L, hour#56, max(views)#53L]
+      +- *(6) SortMergeJoin [hour#8, views#2L], [hour#56, max(views)#53L], Inner
+         :- *(2) Sort [hour#8 ASC NULLS FIRST, views#2L ASC NULLS FIRST], false, 0
+         :  +- Exchange hashpartitioning(hour#8, views#2L, 200)
+         :     +- *(1) Filter (isnotnull(views#2L) && isnotnull(hour#8))
+         :        +- InMemoryTableScan [language#0, title#1, views#2L, size#3L, hour#8], [isnotnull(views#2L), isnotnull(hour#8)]
+         :              +- InMemoryRelation [language#0, title#1, views#2L, size#3L, hour#8], true, 10000, StorageLevel(disk, memory, deserialized, 1 replicas)
+         :                    +- *(2) Filter ((((isnotnull(title#1) && isnotnull(language#0)) && (language#0 = en)) && NOT (title#1 = Main Page)) && NOT StartsWith(title#1, Special:))
+         :                       +- *(2) Project [language#0, title#1, views#2L, size#3L, pythonUDF0#17 AS hour#8]
+         :                          +- BatchEvalPython [pathToHour(input_file_name())], [language#0, title#1, views#2L, size#3L, pythonUDF0#17]
+         :                             +- *(1) FileScan csv [language#0,title#1,views#2L,size#3L] Batched: false, Format: CSV, Location: InMemoryFileIndex[hdfs://nml-cloud-149.cs.sfu.ca:8020/courses/732/pagecounts-3], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<language:string,title:string,views:bigint,size:bigint>
+         +- *(5) Sort [hour#56 ASC NULLS FIRST, max(views)#53L ASC NULLS FIRST], false, 0
+            +- Exchange hashpartitioning(hour#56, max(views)#53L, 200)
+               +- *(4) Filter isnotnull(max(views)#53L)
+                  +- *(4) HashAggregate(keys=[hour#56], functions=[max(views#2L)])
+                     +- Exchange hashpartitioning(hour#56, 200)
+                        +- *(3) HashAggregate(keys=[hour#56], functions=[partial_max(views#2L)])
+                           +- *(3) Filter isnotnull(hour#56)
+                              +- InMemoryTableScan [views#2L, hour#56], [isnotnull(hour#56)]
+                                    +- InMemoryRelation [language#0, title#1, views#2L, size#3L, hour#56], true, 10000, StorageLevel(disk, memory, deserialized, 1 replicas)
+                                          +- *(2) Filter ((((isnotnull(title#1) && isnotnull(language#0)) && (language#0 = en)) && NOT (title#1 = Main Page)) && NOT StartsWith(title#1, Special:))
+                                             +- *(2) Project [language#0, title#1, views#2L, size#3L, pythonUDF0#17 AS hour#8]
+                                                +- BatchEvalPython [pathToHour(input_file_name())], [language#0, title#1, views#2L, size#3L, pythonUDF0#17]
+                                                   +- *(1) FileScan csv [language#0,title#1,views#2L,size#3L] Batched: false, Format: CSV, Location: InMemoryFileIndex[hdfs://nml-cloud-149.cs.sfu.ca:8020/courses/732/pagecounts-3], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<language:string,title:string,views:bigint,size:bigint>
+
+EXECUTION SUMMARY
+== Physical Plan ==
+*(7) Sort [hour#57 ASC NULLS FIRST, title#1 ASC NULLS FIRST], true, 0
++- Exchange rangepartitioning(hour#57 ASC NULLS FIRST, title#1 ASC NULLS FIRST, 200)
+   +- *(6) Project [language#0, title#1, views#2L, size#3L, hour#57, max(views)#53L]
+      +- *(6) SortMergeJoin [hour#8, views#2L], [hour#57, max(views)#53L], Inner
+         :- *(2) Sort [hour#8 ASC NULLS FIRST, views#2L ASC NULLS FIRST], false, 0
+         :  +- Exchange hashpartitioning(hour#8, views#2L, 200)
+         :     +- *(1) Filter (isnotnull(views#2L) && isnotnull(hour#8))
+         :        +- InMemoryTableScan [language#0, title#1, views#2L, size#3L, hour#8], [isnotnull(views#2L), isnotnull(hour#8)]
+         :              +- InMemoryRelation [language#0, title#1, views#2L, size#3L, hour#8], true, 10000, StorageLevel(disk, memory, deserialized, 1 replicas)
+         :                    +- *(2) Filter ((((isnotnull(language#0) && isnotnull(title#1)) && (language#0 = en)) && NOT (title#1 = Main Page)) && NOT StartsWith(title#1, Special:))
+         :                       +- *(2) Project [language#0, title#1, views#2L, size#3L, pythonUDF0#17 AS hour#8]
+         :                          +- BatchEvalPython [pathToHour(input_file_name())], [language#0, title#1, views#2L, size#3L, pythonUDF0#17]
+         :                             +- *(1) FileScan csv [language#0,title#1,views#2L,size#3L] Batched: false, Format: CSV, Location: InMemoryFileIndex[hdfs://nml-cloud-149.cs.sfu.ca:8020/courses/732/pagecounts-3], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<language:string,title:string,views:bigint,size:bigint>
+         +- *(5) Sort [hour#57 ASC NULLS FIRST, max(views)#53L ASC NULLS FIRST], false, 0
+            +- Exchange hashpartitioning(hour#57, max(views)#53L, 200)
+               +- *(4) Filter isnotnull(max(views)#53L)
+                  +- *(4) HashAggregate(keys=[hour#57], functions=[max(views#2L)])
+                     +- Exchange hashpartitioning(hour#57, 200)
+                        +- *(3) HashAggregate(keys=[hour#57], functions=[partial_max(views#2L)])
+                           +- *(3) Filter isnotnull(hour#57)
+                              +- InMemoryTableScan [views#2L, hour#57], [isnotnull(hour#57)]
+                                    +- InMemoryRelation [language#0, title#1, views#2L, size#3L, hour#57], true, 10000, StorageLevel(disk, memory, deserialized, 1 replicas)
+                                          +- *(2) Filter ((((isnotnull(language#0) && isnotnull(title#1)) && (language#0 = en)) && NOT (title#1 = Main Page)) && NOT StartsWith(title#1, Special:))
+                                             +- *(2) Project [language#0, title#1, views#2L, size#3L, pythonUDF0#17 AS hour#8]
+                                                +- BatchEvalPython [pathToHour(input_file_name())], [language#0, title#1, views#2L, size#3L, pythonUDF0#17]
+                                                   +- *(1) FileScan csv [language#0,title#1,views#2L,size#3L] Batched: false, Format: CSV, Location: InMemoryFileIndex[hdfs://nml-cloud-149.cs.sfu.ca:8020/courses/732/pagecounts-3], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<language:string,title:string,views:bigint,size:bigint>
+
+5) Honestly, it took me less time to write temp_range_sql.py, as I am more familiar, at this point, with SQL. There was definitely a learning 
+curve regarding getting a handle on DataFrames. That being said, the DataFrames methodology seems more functionally driven. It reminds me of 
+writing Haskell, which is my favourite language. Once accustomed, I belive that using DataFrames produces significantly more readable code.
