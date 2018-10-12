@@ -32,7 +32,6 @@ def main(inputs, output):
     comments = spark.read.json(inputs, schema=comments_schema)
     averages = comments.groupBy('subreddit').avg('score')
     averages.write.csv(output, mode='overwrite')
-    print(averages.explain())
 
 if __name__ == '__main__':
     inputs = sys.argv[1]
