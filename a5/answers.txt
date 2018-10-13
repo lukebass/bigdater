@@ -1,6 +1,6 @@
 1) The only fields loaded were the ones the program used: score and subreddit. It appeared as though the average was computed in two steps: 
-first it performed a "partial_avg" and then the complete "avg". There was an intermediate step between the two, in which it was exchanging 
-the hashpartitioning. This seems similar to a combiner-like step: taking the partial averages and combining them to find the complete average.
+first it performed a "partial_avg" and then the complete "avg". There was an intermediate step between the two, in which it was exchanging the 
+hashpartitioning. This seems similar to a combiner-like step: taking the partial averages and combining them to find the complete average.
 
 2) For the following tests I used the reddit-5 dataset:
 
@@ -10,14 +10,14 @@ DataFrames and Python3: 1m39.970s
 RDDs and PyPy: 2m0.070s
 DataFrames and PyPy: 0m55.417s
 
-Using PyPy sped up the program execution for both RDDs and DataFrames, however moreso for DataFrames. I assume the time reduction was larger 
+Using PyPy sped up the program execution for both RDDs and DataFrames, however less so for DataFrames. I assume the time reduction was larger 
 for the RDD implementation because that implementation required performing more Python operations on the data. In the DataFrames implementation, 
 we read in the data, get the averages, then write the data out. There are less operations here for PyPy's just-in-time compiler to optimize.
 
 
 3) For the following tests I used the pagecounts-3 dataset:
 
-Without broadcast: 1m46.676s -- 2m17.074s
+Without broadcast: 1m46.676s
 With broadcast: 1m35.989s
 
 4) The execution plan decreased from 7 to 4 steps when using the broadcast hint. Furthermore, when we examine the execution plans further, we 

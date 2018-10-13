@@ -19,10 +19,10 @@ def main(inputs, output):
     weather = spark.read.csv(inputs, schema=observation_schema).cache()
     tmin = weather.filter(weather.qflag.isNull()).filter(weather.observation == 'TMIN').withColumnRenamed('value', 'min')
     tmax = weather.filter(weather.qflag.isNull()).filter(weather.observation == 'TMAX').withColumnRenamed('value', 'max')
-    range = tmin.join(tmax, ['station', 'date']).withColumn('range', (tmax.max - tmin.min) / 10).select('station', 'date', 'range').cache()
+    range = tmin.join(tmax, ['station', 'date']).withColumn('range', (tmax.max - tmin.min) / 10).cache()
 
-    maxRange = range.groupBy('date').max('range')
-    maxStation = range.join(maxRange, [range.date == maxRange.date, range.range == maxRange['max(range)']]).drop(maxRange.date).orderBy('date', 'station')
+    maxRange = range.groupBy('date').max('range').withColumnRenamed('max(range)', 'range')
+    maxStation = range.join(maxRange, ['date', 'range']).orderBy('date', 'station')
     maxStation[['date', 'station', 'range']].write.csv(output, compression='gzip', mode='overwrite')
 
 if __name__ == '__main__':
