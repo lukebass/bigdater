@@ -17,9 +17,9 @@ def main(inputs):
 
     totals = data.groupBy('host').agg(functions.count('*').alias('x'), functions.sum('bytes').alias('y')).drop('host')
     totals = totals.withColumn('n', functions.lit(1)).withColumn('x^2', totals.x**2).withColumn('y^2', totals.y**2).withColumn('xy', totals.x * totals.y)
-    totals = totals.groupBy().sum().head()
+    sums = totals.groupBy().sum().head()
     
-    r = (totals['sum(n)'] * totals['sum(xy)'] - totals['sum(x)'] * totals['sum(y)']) / (math.sqrt(totals['sum(n)'] * totals['sum(x^2)'] - totals['sum(x)']**2) * math.sqrt(totals['sum(n)'] * totals['sum(y^2)'] - totals['sum(y)']**2))
+    r = (sums['sum(n)'] * sums['sum(xy)'] - sums['sum(x)'] * sums['sum(y)']) / (math.sqrt(sums['sum(n)'] * sums['sum(x^2)'] - sums['sum(x)']**2) * math.sqrt(sums['sum(n)'] * sums['sum(y^2)'] - sums['sum(y)']**2))
     print(r, r**2)
 
 def getFields(line):
