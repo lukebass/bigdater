@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession, functions, types, Row
 import sys, re, math
 assert sys.version_info >= (3, 5)
 spark = SparkSession.builder.appName('nasa logs').getOrCreate()
-assert spark.version >= '2.3' # make sure we have Spark 2.3+
+assert spark.version >= '2.3'
 
 wordsep = re.compile(r'^(\S+) - - \[(\S+) [+-]\d+\] \"[A-Z]+ (\S+) HTTP/\d\.\d\" \d+ (\d+)$')
 
