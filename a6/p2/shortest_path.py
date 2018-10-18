@@ -9,11 +9,13 @@ def main(inputs, output, start, end):
     fields = sc.textFile(path).map(getEdges).cache()
     
     paths = sc.parallelize([(start, (None, 0))])
-    for i in range(2):
+    for i in range(6):
         current = paths.filter(lambda x: x[1][1] == i)
         neighbours = fields.join(current).map(lambda x: (x[0], x[1][0]))
-        paths = neighbours.flatMap(lambda x: getPaths(x, i + 1)).union(paths)
-        paths = paths.reduceByKey(min)
+        paths = neighbours.flatMap(lambda x: getPaths(x, i + 1)).union(paths).reduceByKey(min)
+
+        if paths.lookup(end):
+            break
        
     print(paths.collect())
     #paths.saveAsTextFile(output + '/iter-' + str(i))
