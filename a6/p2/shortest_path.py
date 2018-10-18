@@ -16,9 +16,15 @@ def main(inputs, output, start, end):
 
         if paths.lookup(end):
             break
-       
-    print(paths.collect())
-    #paths.saveAsTextFile(output + '/iter-' + str(i))
+    
+    finalPath = [end]
+    source = paths.lookup(end)[0][0]
+    while source is not None:
+        finalPath.insert(0, source)
+        source = paths.lookup(source)[0][0]
+
+    finalPath = sc.parallelize(finalPath, 1)
+    finalPath.saveAsTextFile(output + '/path')
 
 def getPaths(node):
     neighbours = node[1][0]
