@@ -11,8 +11,8 @@ def main(inputs, output, start, end):
     paths = sc.parallelize([(start, (None, 0))])
     for i in range(6):
         current = paths.filter(lambda x: x[1][1] == i)
-        neighbours = fields.join(current).map(lambda x: (x[0], x[1][0]))
-        paths = neighbours.flatMap(lambda x: getPaths(x, i + 1)).union(paths).reduceByKey(min)
+        newPaths = fields.join(current).flatMap(getPaths)
+        paths = paths.union(newPaths).reduceByKey(min)
 
         if paths.lookup(end):
             break
@@ -20,9 +20,12 @@ def main(inputs, output, start, end):
     print(paths.collect())
     #paths.saveAsTextFile(output + '/iter-' + str(i))
 
-def getPaths(node, distance):
-    for path in node[1]:
-        yield (path, (node[0], distance))
+def getPaths(node):
+    neighbours = node[1][0]
+    distance = node[1][1][1]
+
+    for neighbour in neighbours:
+        yield (neighbour, (node[0], distance + 1))
 
 def getEdges(node):
     fields = node.split()
