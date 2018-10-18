@@ -12,7 +12,7 @@ def main(inputs, output, start, end):
     for i in range(6):
         current = paths.filter(lambda x: x[1][1] == i)
         newPaths = fields.join(current).flatMap(getPaths)
-        paths = paths.union(newPaths).reduceByKey(min)
+        paths = paths.union(newPaths).reduceByKey(min).cache()
 
         if paths.lookup(end):
             break
