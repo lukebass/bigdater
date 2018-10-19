@@ -20,7 +20,8 @@ def main(inputs):
     sums = totals.groupBy().sum().head()
     
     r = (sums['sum(n)'] * sums['sum(xy)'] - sums['sum(x)'] * sums['sum(y)']) / (math.sqrt(sums['sum(n)'] * sums['sum(x^2)'] - sums['sum(x)']**2) * math.sqrt(sums['sum(n)'] * sums['sum(y^2)'] - sums['sum(y)']**2))
-    print(r, r**2)
+    print('r = ' + str(r))
+    print('r^2 = ' + str(r**2))
 
 def getFields(line):
     fields = wordsep.split(line)
