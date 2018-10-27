@@ -1,0 +1,30 @@
+1) When I inserted a new row with an existing primary key, it replaced the existing row with that key.
+
+2) When the keyspace's replication factor is 1 and one of the nodes is down, querying the data fails. However, when the keyspace's 
+replication factor is 2, we are able to query the data even when one of the nodes is down.
+
+3) When the node was up, the consistency level had no affect on the results returned from any of the queries. When the node was down,
+however, some of the queries did not execute successfully.
+
+4) The following queries executed successfully with consistenty set to all and one of the nodes down:
+
+SELECT * FROM test WHERE id=1;
+SELECT * FROM test WHERE id=5;
+
+I believe that some of the records were returned because these records were stored on the node that was not down. The records that 
+could not be returned likely existed on the node that was down.
+
+5) CREATE TABLE nasalogs (
+  id UUID,
+  host TEXT,
+  datetime TIMESTAMP,
+  path TEXT,
+  bytes INT,
+  PRIMARY KEY (host, id)
+);
+
+This primary key was chosen because, firstly, it will store all the records with the same host value on the same node. Since we will 
+be aggregating by the host value, it makes sense to store the records this way. Secondly, in order to ensure key uniqueness, I have 
+included the id field as part of the primary key.
+
+6) SELECT SUM(bytes) FROM nasalogs;
